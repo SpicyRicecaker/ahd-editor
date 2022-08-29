@@ -1,8 +1,9 @@
-import { Component, For } from "solid-js";
+import { Component, createEffect, createSignal, For } from "solid-js";
 
 // import logo from './logo.svg';
 import styles from "./App.module.scss";
 import { BiSolidRightArrow } from "solid-icons/bi";
+import { BiSolidMoon } from "solid-icons/bi";
 
 interface AHDSymbol {
   symbol: string;
@@ -21,6 +22,14 @@ class Node {
 }
 
 const App: Component = () => {
+  const [isDark, setIsDark] = createSignal(
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  );
+
+  createEffect(() => {
+    console.log(isDark());
+  });
+
   const AHDSymbols: AHDSymbol[] = [
     {
       symbol: "ˌ",
@@ -136,10 +145,10 @@ const App: Component = () => {
   }
 
   return (
-    <div class={styles.App}>
+    <div class={`${isDark() ? styles.dark : styles.light} ${styles.App}`}>
       <div>
         <label>
-          <BiSolidRightArrow size={24} color="#000000" />
+          <BiSolidRightArrow size={24} color="var(--fg-1)" />
           <input ref={input!} onKeyDown={processKey}></input>
         </label>
       </div>
@@ -160,6 +169,9 @@ const App: Component = () => {
           )}
         </For>
       </div>
+      <button class={styles.theme} onClick={() => setIsDark((v) => !v)}>
+        <BiSolidMoon size={24} />
+      </button>
     </div>
   );
 };
