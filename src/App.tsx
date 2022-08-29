@@ -89,6 +89,9 @@ const App: Component = () => {
 
   let state: Node | undefined = undefined;
   function processKey(e: KeyboardEvent) {
+    if (e.key === 'Shift') {
+      return;
+    }
     if (!state) {
       state = data.get(e.key);
     } else {
@@ -97,27 +100,11 @@ const App: Component = () => {
       if (state && state.children.size === 0) {
         e.preventDefault();
 
-        console.log(
-          "slice res",
-          input.value.slice(
-            0,
-            input.value.length - state.aHDSymbol!.chord.length + 1
-          ) + state.aHDSymbol!.symbol
-        );
-
-        console.log(
-          "we are slicing in the range of",
-          0,
-          input.value.length - state.aHDSymbol!.chord.length + 1
-        );
-
         input.value =
           input.value.slice(
             0,
             input.value.length - state.aHDSymbol!.chord.length + 1
           ) + state.aHDSymbol!.symbol;
-
-        console.log("ahdsymbol used", state.aHDSymbol);
 
         state = undefined;
       }

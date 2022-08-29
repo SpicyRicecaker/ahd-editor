@@ -22,6 +22,7 @@
   @media (min-width: 500px) {
     width: 90%;
   }
+
   @media (min-width: 900px) {
     width: 50%;
   }
@@ -32,6 +33,7 @@
     & > label {
       & > input {
         font-family: "Iosevka";
+        line-height: 3rem;
         font-size: 2rem;
         outline: none;
         border: none;
