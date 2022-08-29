@@ -23,6 +23,14 @@ class Node {
 const App: Component = () => {
   const AHDSymbols: AHDSymbol[] = [
     {
+      symbol: "ˌ",
+      chord: ",",
+    },
+    {
+      symbol: "ˈ",
+      chord: "'",
+    },
+    {
       symbol: "ā",
       chord: "a-",
     },
@@ -63,19 +71,28 @@ const App: Component = () => {
   let input: HTMLInputElement;
 
   // build hashmap from ahdsymbols for quick access
-  const data: Map<string, Node> = new Map();
+  const backmap: Map<string, Node> = new Map();
 
-  AHDSymbols.forEach(({ chord, symbol }, idx) => {
-    // assume all chords are of greater than 1 length
-
-    if (!data.has(chord[0])) {
-      data.set(chord[0], new Node());
+  AHDSymbols.forEach(({ chord }, idx) => {
+    // chords can be of any length greater than or equal to 1
+    if (chord.length === 1) {
+      backmap.set(chord, new Node(AHDSymbols[idx]));
+      return;
     }
-    let ptr = data.get(chord[0])!;
 
-    for (let i = 1; i < chord.length; i++) {
-      if (i === chord.length - 1) {
+    let i = chord.length - 1;
+
+    if (!backmap.has(chord[i])) {
+      backmap.set(chord[i], new Node());
+    }
+
+    let ptr = backmap.get(chord[i])!;
+
+    while (true) {
+      i--;
+      if (i === 0) {
         ptr.children.set(chord[i], new Node(AHDSymbols[idx]));
+        break;
       } else {
         if (!ptr.children.has(chord[i])) {
           ptr.children.set(chord[i], new Node());
@@ -85,28 +102,35 @@ const App: Component = () => {
     }
   });
 
-  console.log(data);
-
-  let state: Node | undefined = undefined;
   function processKey(e: KeyboardEvent) {
-    if (e.key === 'Shift') {
-      return;
-    }
-    if (!state) {
-      state = data.get(e.key);
-    } else {
-      state = state.children.get(e.key);
+    switch (e.key) {
+      case "Shift": {
+        break;
+      }
+      default: {
+        // traverse from right to left
+        let node = backmap.get(e.key);
 
-      if (state && state.children.size === 0) {
-        e.preventDefault();
+        if (!node) {
+          return;
+        }
+        let i = input.value.length - 1;
 
-        input.value =
-          input.value.slice(
-            0,
-            input.value.length - state.aHDSymbol!.chord.length + 1
-          ) + state.aHDSymbol!.symbol;
+        while (true) {
+          const ne: Node | undefined = node!.children.get(input.value[i]);
 
-        state = undefined;
+          if (!ne) {
+            if (node!.aHDSymbol) {
+              input.value =
+                input.value.slice(0, i + 1) + node!.aHDSymbol!.symbol;
+              e.preventDefault();
+            }
+            return;
+          }
+
+          node = ne;
+          i--;
+        }
       }
     }
   }
@@ -123,7 +147,14 @@ const App: Component = () => {
         <For each={AHDSymbols}>
           {(AHD) => (
             <div class={styles.symbol}>
-              <div>{AHD.symbol}</div>
+              <button
+                onClick={() => {
+                  input.value += AHD.symbol;
+                  input.focus();
+                }}
+              >
+                {AHD.symbol}
+              </button>
               <For each={AHD.chord.split("")}>{(c) => <div>{c}</div>}</For>
             </div>
           )}

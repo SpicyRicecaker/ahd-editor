@@ -18,12 +18,15 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  gap: 0.5rem;
 
   @media (min-width: 500px) {
+    margin: 0 auto;
     width: 90%;
   }
 
   @media (min-width: 900px) {
+    margin: 0 auto;
     width: 50%;
   }
 
@@ -45,18 +48,27 @@
 .symbolWrapper {
   display: flex;
   flex-direction: "row";
-  gap: 1rem;
   font-size: 2rem;
   & > .symbol {
     user-select: none;
     -webkit-user-select: none;
-    & > div:nth-child(1) {
+
+    & > button {
+      outline: none;
+      border: none;
+      margin: 0;
+      font-family: "Iosevka";
+      background-color: white;
+      font-size: 2rem;
+      line-height: 3rem;
+
       &:hover {
         cursor: pointer;
         background-color: var(--black-3);
       }
     }
-    & > div:not(:nth-child(1)) {
+    & > div {
+      text-align: center;
       color: var(--black-3);
       pointer-events: none;
     }
