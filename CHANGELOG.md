@@ -1,0 +1,1 @@
+Change editor to factor in cursor position

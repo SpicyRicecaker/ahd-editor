@@ -1,6 +1,5 @@
-import { Component, createEffect, createSignal, For } from "solid-js";
+import { Component, createSignal, For } from "solid-js";
 
-// import logo from './logo.svg';
 import styles from "./App.module.scss";
 import { BiSolidRightArrow } from "solid-icons/bi";
 import { BiSolidMoon } from "solid-icons/bi";
@@ -16,7 +15,6 @@ class Node {
 
   constructor(aHDSymbol?: AHDSymbol) {
     this.children = new Map();
-
     this.aHDSymbol = aHDSymbol;
   }
 }
@@ -25,10 +23,6 @@ const App: Component = () => {
   const [isDark, setIsDark] = createSignal(
     window.matchMedia("(prefers-color-scheme: dark)").matches
   );
-
-  createEffect(() => {
-    console.log(isDark());
-  });
 
   const AHDSymbols: AHDSymbol[] = [
     {
@@ -123,7 +117,7 @@ const App: Component = () => {
         if (!node) {
           return;
         }
-        let i = input.value.length - 1;
+        let i = input.selectionStart! - 1;
 
         while (true) {
           const ne: Node | undefined = node!.children.get(input.value[i]);
@@ -131,7 +125,13 @@ const App: Component = () => {
           if (!ne) {
             if (node!.aHDSymbol) {
               input.value =
-                input.value.slice(0, i + 1) + node!.aHDSymbol!.symbol;
+                input.value.slice(0, i + 1) +
+                node!.aHDSymbol!.symbol +
+                input.value.slice(input.selectionStart!);
+              input.setSelectionRange(
+                i + 1 + node!.aHDSymbol!.symbol.length,
+                i + 1 + node!.aHDSymbol!.symbol.length
+              );
               e.preventDefault();
             }
             return;
@@ -157,9 +157,19 @@ const App: Component = () => {
           {(AHD) => (
             <div class={styles.symbol}>
               <button
-                onClick={() => {
-                  input.value += AHD.symbol;
-                  input.focus();
+                onClick={(e) => {
+                  e.preventDefault();
+
+                  const start = input.selectionStart!;
+                  input.value =
+                    input.value.slice(0, start) +
+                    AHD.symbol +
+                    input.value.slice(start);
+
+                  input.setSelectionRange(
+                    start + AHD.symbol.length,
+                    start + AHD.symbol.length
+                  );
                 }}
               >
                 {AHD.symbol}
