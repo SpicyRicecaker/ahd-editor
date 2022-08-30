@@ -132,6 +132,7 @@ const App: Component = () => {
         if (!node) {
           return;
         }
+
         let i = input.selectionStart! - 1;
 
         while (true) {
@@ -142,7 +143,8 @@ const App: Component = () => {
               input.value =
                 input.value.slice(0, i + 1) +
                 node!.aHDSymbol!.symbol +
-                input.value.slice(input.selectionStart!);
+                input.value.slice(input.selectionEnd!);
+
               input.setSelectionRange(
                 i + 1 + node!.aHDSymbol!.symbol.length,
                 i + 1 + node!.aHDSymbol!.symbol.length
@@ -175,11 +177,12 @@ const App: Component = () => {
                 onClick={(e) => {
                   e.preventDefault();
 
-                  const start = input.selectionStart!;
+                  const [start, end] = [input.selectionStart!, input.selectionEnd!];
+
                   input.value =
                     input.value.slice(0, start) +
                     AHD.symbol +
-                    input.value.slice(start);
+                    input.value.slice(end);
 
                   input.setSelectionRange(
                     start + AHD.symbol.length,

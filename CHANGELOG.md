@@ -1,1 +1,7 @@
-Change editor to factor in cursor position
+- [x] Change editor to factor in cursor position
+- [ ] Implement undos using pattern
+- [ ] Implement an emacs mode (reduntant on macOS)
+  - `ctrl+f`/`ctrl+b` move forwards/backwards
+  - `ctrl+e`/`ctrl+a` move front/back
+  - `ctrl+space` start selection & cancel selection w/ `esc`
+- [ ] Implement a vim mode (how will replacement work with chords?)
