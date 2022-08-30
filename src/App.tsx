@@ -24,10 +24,25 @@ const App: Component = () => {
     window.matchMedia("(prefers-color-scheme: dark)").matches
   );
 
+  document.addEventListener('click', () => {
+    input.focus();
+  });
+  
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      input.focus();
+    }
+  });
+
   const AHDSymbols: AHDSymbol[] = [
     {
       symbol: "ˌ",
       chord: ",",
+    },
+    {
+      symbol: ",",
+      chord: "ˌ,",
     },
     {
       symbol: "ˈ",
@@ -170,6 +185,8 @@ const App: Component = () => {
                     start + AHD.symbol.length,
                     start + AHD.symbol.length
                   );
+
+                  input.focus();
                 }}
               >
                 {AHD.symbol}
