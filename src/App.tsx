@@ -149,7 +149,7 @@ const App: Component = () => {
       <div>
         <label>
           <BiSolidRightArrow size={24} color="var(--fg-1)" />
-          <input ref={input!} onKeyDown={processKey}></input>
+          <input ref={input!} spellcheck={false} onKeyDown={processKey}></input>
         </label>
       </div>
       <div class={styles.symbolWrapper}>
