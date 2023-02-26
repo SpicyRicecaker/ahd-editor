@@ -24,16 +24,9 @@ const App: Component = () => {
     window.matchMedia("(prefers-color-scheme: dark)").matches
   );
 
-  document.addEventListener('click', () => {
-    input.focus();
-  });
-  
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      input.focus();
-    }
-  });
+  // document.addEventListener('click', () => {
+  //   input.focus();
+  // });
 
   const AHDSymbols: AHDSymbol[] = [
     {
@@ -86,7 +79,24 @@ const App: Component = () => {
     },
   ];
 
-  let input: HTMLInputElement;
+  let ahdSpelling: HTMLInputElement;
+  let englishSpelling: HTMLInputElement;
+  let google: HTMLIFrameElement;
+
+  const spellingFocusList = [() => ahdSpelling, () => englishSpelling];
+  let spellingFocusIndex = 0;
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+
+      // try focusing
+      const i = (spellingFocusIndex + 1) % spellingFocusList.length;
+      spellingFocusList[i]().focus();
+      spellingFocusIndex = i;
+    }
+  });
+
 
   // build hashmap from ahdsymbols for quick access
   const backmap: Map<string, Node> = new Map();
@@ -125,6 +135,26 @@ const App: Component = () => {
       case "Shift": {
         break;
       }
+      // emacs bindings
+      case "f": {
+        if (e.ctrlKey) {
+          e.preventDefault();
+          ahdSpelling.setSelectionRange(ahdSpelling.selectionStart! + 1, ahdSpelling.selectionStart! + 1);
+        }
+        break;
+      }
+      case "b": {
+        if (e.ctrlKey) {
+          e.preventDefault();
+          ahdSpelling.setSelectionRange(ahdSpelling.selectionStart! - 1, ahdSpelling.selectionStart! - 1);
+        }
+        break;
+      }
+      // end emacs bindings
+      case "Enter": {
+        google.src = `https://www.google.com/search?igu=1&ei=&q=define+${englishSpelling.value.replaceAll(" ", "+")}`
+        break;
+      }
       default: {
         // traverse from right to left
         let node = backmap.get(e.key);
@@ -133,19 +163,19 @@ const App: Component = () => {
           return;
         }
 
-        let i = input.selectionStart! - 1;
+        let i = ahdSpelling.selectionStart! - 1;
 
         while (true) {
-          const ne: Node | undefined = node!.children.get(input.value[i]);
+          const ne: Node | undefined = node!.children.get(ahdSpelling.value[i]);
 
           if (!ne) {
             if (node!.aHDSymbol) {
-              input.value =
-                input.value.slice(0, i + 1) +
+              ahdSpelling.value =
+                ahdSpelling.value.slice(0, i + 1) +
                 node!.aHDSymbol!.symbol +
-                input.value.slice(input.selectionEnd!);
+                ahdSpelling.value.slice(ahdSpelling.selectionEnd!);
 
-              input.setSelectionRange(
+              ahdSpelling.setSelectionRange(
                 i + 1 + node!.aHDSymbol!.symbol.length,
                 i + 1 + node!.aHDSymbol!.symbol.length
               );
@@ -163,10 +193,13 @@ const App: Component = () => {
 
   return (
     <div class={`${isDark() ? styles.dark : styles.light} ${styles.App}`}>
+      <div class={styles.dark}>
+        target: <input ref={englishSpelling!} id="english-spelling" class={styles.coolInput}></input>
+      </div>
       <div>
         <label>
-          <BiSolidRightArrow size={24} color="var(--fg-1)" />
-          <input ref={input!} spellcheck={false} onKeyDown={processKey}></input>
+          <BiSolidRightArrow size={24} />
+          <input id="ahd-spelling" class={styles.coolInput} ref={ahdSpelling!} spellcheck={false} onKeyDown={processKey}></input>
         </label>
       </div>
       <div class={styles.symbolWrapper}>
@@ -174,22 +207,23 @@ const App: Component = () => {
           {(AHD) => (
             <div class={styles.symbol}>
               <button
+                tabIndex={-1}
                 onClick={(e) => {
                   e.preventDefault();
 
-                  const [start, end] = [input.selectionStart!, input.selectionEnd!];
+                  const [start, end] = [ahdSpelling.selectionStart!, ahdSpelling.selectionEnd!];
 
-                  input.value =
-                    input.value.slice(0, start) +
+                  ahdSpelling.value =
+                    ahdSpelling.value.slice(0, start) +
                     AHD.symbol +
-                    input.value.slice(end);
+                    ahdSpelling.value.slice(end);
 
-                  input.setSelectionRange(
+                  ahdSpelling.setSelectionRange(
                     start + AHD.symbol.length,
                     start + AHD.symbol.length
                   );
 
-                  input.focus();
+                  ahdSpelling.focus();
                 }}
               >
                 {AHD.symbol}
@@ -202,6 +236,7 @@ const App: Component = () => {
       <button class={styles.theme} onClick={() => setIsDark((v) => !v)}>
         <BiSolidMoon size={24} />
       </button>
+      <iframe ref={google!} style="border: none;" width="600px" height="800px" src=""></iframe>
     </div>
   );
 };
