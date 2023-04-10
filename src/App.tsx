@@ -1,8 +1,7 @@
 import { Component, createSignal, For } from "solid-js";
 
 import styles from "./App.module.scss";
-import { BiSolidRightArrow } from "solid-icons/bi";
-import { BiSolidMoon } from "solid-icons/bi";
+import { BiSolidRightArrow, BiSolidMoon } from "solid-icons/bi";
 
 interface AHDSymbol {
   symbol: string;
@@ -25,14 +24,18 @@ const App: Component = () => {
   );
 
   document.addEventListener('click', () => {
-    input.focus();
+    ahdSpelling.focus();
   });
   
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
       e.preventDefault();
-      input.focus();
+      ahdSpelling.focus();
     }
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    ahdSpelling.focus();
   });
 
   const AHDSymbols: AHDSymbol[] = [
@@ -87,10 +90,8 @@ const App: Component = () => {
   ];
 
   let ahdSpelling: HTMLInputElement;
-  let englishSpelling: HTMLInputElement;
-  let google: HTMLIFrameElement;
 
-  const spellingFocusList = [() => ahdSpelling, () => englishSpelling];
+  const spellingFocusList = [() => ahdSpelling];
   let spellingFocusIndex = 0;
 
   document.addEventListener('keydown', (e) => {
@@ -158,10 +159,6 @@ const App: Component = () => {
         break;
       }
       // end emacs bindings
-      case "Enter": {
-        google.src = `https://www.google.com/search?igu=1&ei=&q=define+${englishSpelling.value.replaceAll(" ", "+")}`
-        break;
-      }
       default: {
         // traverse from right to left
         let node = backmap.get(e.key);
@@ -170,7 +167,7 @@ const App: Component = () => {
           return;
         }
 
-        let i = input.selectionStart! - 1;
+        let i = ahdSpelling.selectionStart! - 1;
 
         while (true) {
           const ne: Node | undefined = node!.children.get(ahdSpelling.value[i]);
@@ -180,9 +177,9 @@ const App: Component = () => {
               ahdSpelling.value =
                 ahdSpelling.value.slice(0, i + 1) +
                 node!.aHDSymbol!.symbol +
-                input.value.slice(input.selectionEnd!);
+                ahdSpelling.value.slice(ahdSpelling.selectionEnd!);
 
-              input.setSelectionRange(
+              ahdSpelling.setSelectionRange(
                 i + 1 + node!.aHDSymbol!.symbol.length,
                 i + 1 + node!.aHDSymbol!.symbol.length
               );
@@ -200,9 +197,6 @@ const App: Component = () => {
 
   return (
     <div class={`${isDark() ? styles.dark : styles.light} ${styles.App}`}>
-      <div class={styles.dark}>
-        target: <input ref={englishSpelling!} id="english-spelling" class={styles.coolInput}></input>
-      </div>
       <div>
         <label>
           <BiSolidRightArrow size={24} />
@@ -218,12 +212,12 @@ const App: Component = () => {
                 onClick={(e) => {
                   e.preventDefault();
 
-                  const [start, end] = [input.selectionStart!, input.selectionEnd!];
+                  const [start, end] = [ahdSpelling.selectionStart!, ahdSpelling.selectionEnd!];
 
-                  input.value =
-                    input.value.slice(0, start) +
+                  ahdSpelling.value =
+                    ahdSpelling.value.slice(0, start) +
                     AHD.symbol +
-                    input.value.slice(end);
+                    ahdSpelling.value.slice(end);
 
                   ahdSpelling.value =
                     ahdSpelling.value.slice(0, start) +
@@ -235,7 +229,7 @@ const App: Component = () => {
                     start + AHD.symbol.length
                   );
 
-                  input.focus();
+                  ahdSpelling.focus();
                 }}
               >
                 {AHD.symbol}
@@ -248,7 +242,6 @@ const App: Component = () => {
       <button class={styles.theme} onClick={() => setIsDark((v) => !v)}>
         <BiSolidMoon size={24} />
       </button>
-      <iframe ref={google!} style="border: none;" width="600px" height="800px" src=""></iframe>
     </div>
   );
 };
