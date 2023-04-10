@@ -24,9 +24,16 @@ const App: Component = () => {
     window.matchMedia("(prefers-color-scheme: dark)").matches
   );
 
-  // document.addEventListener('click', () => {
-  //   input.focus();
-  // });
+  document.addEventListener('click', () => {
+    input.focus();
+  });
+  
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      input.focus();
+    }
+  });
 
   const AHDSymbols: AHDSymbol[] = [
     {
@@ -163,7 +170,7 @@ const App: Component = () => {
           return;
         }
 
-        let i = ahdSpelling.selectionStart! - 1;
+        let i = input.selectionStart! - 1;
 
         while (true) {
           const ne: Node | undefined = node!.children.get(ahdSpelling.value[i]);
@@ -173,9 +180,9 @@ const App: Component = () => {
               ahdSpelling.value =
                 ahdSpelling.value.slice(0, i + 1) +
                 node!.aHDSymbol!.symbol +
-                ahdSpelling.value.slice(ahdSpelling.selectionEnd!);
+                input.value.slice(input.selectionEnd!);
 
-              ahdSpelling.setSelectionRange(
+              input.setSelectionRange(
                 i + 1 + node!.aHDSymbol!.symbol.length,
                 i + 1 + node!.aHDSymbol!.symbol.length
               );
@@ -211,7 +218,12 @@ const App: Component = () => {
                 onClick={(e) => {
                   e.preventDefault();
 
-                  const [start, end] = [ahdSpelling.selectionStart!, ahdSpelling.selectionEnd!];
+                  const [start, end] = [input.selectionStart!, input.selectionEnd!];
+
+                  input.value =
+                    input.value.slice(0, start) +
+                    AHD.symbol +
+                    input.value.slice(end);
 
                   ahdSpelling.value =
                     ahdSpelling.value.slice(0, start) +
@@ -223,7 +235,7 @@ const App: Component = () => {
                     start + AHD.symbol.length
                   );
 
-                  ahdSpelling.focus();
+                  input.focus();
                 }}
               >
                 {AHD.symbol}
